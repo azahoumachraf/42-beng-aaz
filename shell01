@@ -1,0 +1,172 @@
+
+Exercice 1
+The content of ex01/print_groups.sh should be:
+
+#!/bin/sh id -Gn "$FT_USER" | tr ' ' ','
+
+Make it executable:
+
+chmod +x print_groups.sh
+
+Exercice 2
+The required command is:
+
+#!/bin/sh find . -type f -name ".sh" | sed 's|./||' | sed 's/.sh$//' Explanation
+
+Find all .sh files
+
+find . -type f -name ".sh" . → Start searching in the current directory. -type f → Only regular files. -name ".sh" → Files whose names end with .sh.
+
+Example output:
+
+./find_sh.sh ./dir/file1.sh ./dir/subdir/file2.sh
+
+Remove the directory path
+
+sed 's|.*/||'
+
+This substitutes everything up to the last / with nothing.
+
+Result:
+
+find_sh.sh file1.sh file2.sh
+
+Remove the .sh extension
+
+sed 's/.sh$//' .sh → Matches the literal .sh. $ → Only if it's at the end of the line.
+
+Final output:
+
+find_sh file1 file2 Shorter solution (using find only)
+
+You can also do it without sed:
+
+#!/bin/sh find . -type f -name "*.sh" -exec basename {} .sh ; basename {} .sh {} → The file found by find. basename → Removes the directory path. .sh → Also removes the .sh suffix.
+
+Example:
+
+./dir/test.sh
+
+becomes:
+
+test
+
+Exercice 3
+A simple solution is:
+
+#!/bin/sh find . | wc -l Explanation
+
+find .
+Searches from the current directory (.) and prints every file and directory, including the starting directory itself.
+
+Example directory:
+
+. ├── file1 ├── file2 ├── dir1 │ ├── file3 │ └── dir2
+
+Output of find .:
+
+. ./file1 ./file2 ./dir1 ./dir1/file3 ./dir1/dir2
+
+There are 6 entries.
+
+wc -l
+Counts the number of lines.
+
+find . | wc -l
+
+Output:
+
+6 Why this works
+
+The exercise asks to count:
+
+✅ Regular files ✅ Directories ✅ Including .
+
+find . prints exactly those, and wc -l counts them.
+
+Example
+
+Directory:
+
+. ├── a.txt ├── b.txt └── src ├── main.c └── include
+
+find . prints:
+
+. ./a.txt ./b.txt ./src ./src/main.c ./src/include
+
+wc -l returns:
+
+6
+
+This is the standard and expected solution for the exercise.
+
+Exercice 4
+#!/bin/sh ifconfig | grep ether | awk '{print $2}' Explanation
+
+ifconfig
+
+Displays the network interfaces and their configuration.
+
+Example:
+
+en0: flags=... ether a8:5e:45:12:34:56 lo0: flags=... en1: flags=... ether 1c:69:7a:ab:cd:ef
+
+grep ether
+
+Keeps only the lines containing the MAC address.
+
+Output:
+
+ether a8:5e:45:12:34:56 ether 1c:69:7a:ab:cd:ef
+
+awk '{print $2}'
+
+Prints the second field (the MAC address).
+
+Final output:
+
+a8:5e:45:12:34:56 1c:69:7a:ab:cd:ef
+
+Exercice 5
+This exercise is mainly about escaping special characters in the shell.
+
+The required filename is exactly:
+
+"?$'MaRViN'$?"
+
+Since it contains special characters (", , ?, *, $, '), the easiest way is to surround the filename with single quotes. Inside single quotes, everything is taken literally except another single quote.
+
+The command is:
+
+printf "42" > '"?$'''MaRViN'''$?"' Explanation
+
+The filename is built as:
+
+'"?$' # first part inside single quotes ' # escaped single quote (') 'MaRViN' # literal text ' # another literal single quote '$?"' # last part
+
+The shell combines these pieces into the exact filename:
+
+"?$'MaRViN'$?" Why printf instead of echo? printf "42"
+
+prints exactly:
+
+42
+
+with no trailing newline, which satisfies "containing only 42, and nothing else."
+
+After running the command, verify:
+
+ls -lRa MaRV
+
+Expected output:
+
+-rw---xr-- ... "?$'MaRViN'$?"
+
+and checking the content:
+
+cat '"?$'''MaRViN'''$?"'
+
+outputs:
+
+42
+
