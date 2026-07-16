@@ -170,3 +170,14 @@ outputs:
 
 42
 
+
+
+ex 6 : 
+Create a file named skip.sh with the following content:
+
+#!/bin/sh
+ls -l | sed -n '1~2p'
+
+Make it executable:
+
+chmod +x skip.sh
